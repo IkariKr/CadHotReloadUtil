@@ -1,11 +1,13 @@
 using System.Collections.ObjectModel;
 using System.Drawing.Printing;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using Autodesk.AutoCAD.Runtime;
 using CadHotReloadUtil.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Ikari.AutoCAD.Utility;
 using Ikari.AutoCAD.Utility.CADInfo;
 using Ikari.AutoCAD.Utility.CommandHelper;
 using Ikari.AutoCAD.Utility.ComUtils;
@@ -25,17 +27,16 @@ public partial class MainWindowViewModel : ObservableObject
         _installedCadVersions = GetInstalledCadVersion().ToObservableCollection();
     }
 
+    private Assembly _assembly;
+    
     [ObservableProperty] private ObservableCollection<string> _installedCadVersions;
-
-
+    
     public RelayCommand CloseCommand => new RelayCommand(() =>
     {
         var view = App.Builder.GetService<MainWindow>();
         view?.Close();
     });
-
-    public AssemblyDynamicLoader Adl { get; set; }
-
+    
     public AsyncRelayCommand OpenCadCommand => new AsyncRelayCommand(async () =>
     {
         InfoText += nameof(OpenCadCommand) + "...";
@@ -44,7 +45,6 @@ public partial class MainWindowViewModel : ObservableObject
             ProgressBarVisible = Visibility.Visible;
             try
             {
-                //检查AppDomain
                 if (_adl == null)
                 {
                     var dllPath = "Resources\\Interop.Common\\" + InstalledCadVersions[_selectedAutoCadVersionIndex];
@@ -76,12 +76,14 @@ public partial class MainWindowViewModel : ObservableObject
         });
 
     });
-    
+
     public RelayCommand CloseCadCommand => new RelayCommand(() =>
     {
         try
         {
-            (this._adl?.remoteLoader as AutoCadRemoteLoader)?.CloseCadApp();
+            (_adl?.remoteLoader as AutoCadRemoteLoader)?.CloseCadApp();
+            _adl?.Unload();
+            _adl = null;
             InfoText+="关闭成功";
         }
         catch (Exception ex)
@@ -93,31 +95,47 @@ public partial class MainWindowViewModel : ObservableObject
     
     public RelayCommand SelectPluginPathCommand => new RelayCommand(() =>
     {
-        var filePaths = FileGUI.OpenFileDialog(FileGUI.FileFilter.dll);
-        if (filePaths.Length == 0) return;
-        PluginPath = filePaths[0];
-    });
-    
-    public RelayCommand LoadPluginCommand => new RelayCommand(() =>
-    {
-        if (string.IsNullOrEmpty(PluginPath))
-        {
-            InfoText+="请选择插件路径";
-            return;
-        }
-
         try
         {
-            //ReloadMethodExtension.LoadPlugin(PluginPath);
-            InfoText += "加载成功";
+            var filePaths = FileGUI.OpenFileDialog(FileGUI.FileFilter.dll);
+            if (filePaths.Length == 0) return;
+            PluginPath = filePaths[0];
+            _assembly = AssemblyExtension.LoadAssembly(PluginPath);
         }
         catch(Exception ex)
         {
-            InfoText+=ex.Message;
+            InfoText += ex.ToString();
         }
-        
-    });
 
+    });
+    
+    public RelayCommand LinkCadCommand => new RelayCommand(() =>
+    {
+        try
+        {
+            if (_adl == null)
+            {
+                var dllPath = "Resources\\Interop.Common\\" + InstalledCadVersions[_selectedAutoCadVersionIndex];
+                _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.curPath, dllPath);
+            }
+            
+            var rl = _adl.remoteLoader as AutoCadRemoteLoader;
+            var (isSuccess,errMsg)  = rl.GetExistingAutoCadInstance(AutoCadVersion.DisplayAutoCADToAutoCADDic[InstalledCadVersions[_selectedAutoCadVersionIndex]]);
+            if (isSuccess)
+            {
+                InfoText += $"连接成功:{rl.cadApp.ToString()}";
+            }
+            else
+            {
+                InfoText += errMsg;
+            }
+        }
+        catch (Exception ex)
+        {
+            InfoText += ex.ToString();
+        }
+    });
+    
     private AssemblyDynamicLoader? _adl;
     private Dictionary<string, string> _installedCadVersionDic => FindAutoCADLocation.GetInstalledAutoCadVersion();
     private int _selectedAutoCadVersionIndex = 0;
@@ -135,6 +153,13 @@ public partial class MainWindowViewModel : ObservableObject
     {
         try
         {
+            if (_adl != null)
+            {
+                (_adl.remoteLoader as AutoCadRemoteLoader)?.ReleaseCadApp();
+                _adl.Unload();
+                _adl = null;
+            }
+            
             var dllPath = "Resources/Interop.Common/" + InstalledCadVersions[_selectedAutoCadVersionIndex];
             _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.curPath, dllPath);
         }
@@ -160,7 +185,15 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             if (_adl?.remoteLoader is not AutoCadRemoteLoader rl) return;
-            rl.ExecuteSendCommandMethod(parameters: new object[] { $"ExecuteMethod {PluginPath} {TypeName} {MethodName}\r" });
+            if (rl.ExecuteSendCommandMethod(parameters: new object[] { $"ExecuteMethod {PluginPath} {TypeName} {MethodName}\r" }))
+            {
+                InfoText +=  $"执行成功： {PluginPath} {TypeName} {MethodName}\r";
+            }
+            else
+            {
+                InfoText +=  $"执行失败： {PluginPath} {TypeName} {MethodName}\r";
+            }
+            
         }
         catch(Exception ex)
         {
@@ -170,8 +203,32 @@ public partial class MainWindowViewModel : ObservableObject
 
     });
 
-    [ObservableProperty] private string _TypeName;
-    [ObservableProperty] private string _MethodName;
+    private string _typeName;
+    public string TypeName
+    {
+        get => _typeName;
+        set
+        {
+            SetProperty(ref _typeName, value);
+            TypeNameChanged();
+        }
+    }
+
+    private void TypeNameChanged()
+    {
+        try
+        {
+            _methodNames = _assembly?.GetType(_typeName)?.GetMethods()?.Select(x => x.Name);
+            MethodNamesDisplay = _methodNames?.ToObservableCollection();
+        }
+        catch(Exception ex)
+        {
+            
+        }
+
+    }
+
+    [ObservableProperty] private string _methodName;
     
     private string _infoText = string.Empty;
     public string InfoText
@@ -179,17 +236,45 @@ public partial class MainWindowViewModel : ObservableObject
         get => _infoText;
         set
         {
-            // if (value.Contains("\n"))
-            // {
-            //     value.Insert(value.LastIndexOf("\n"), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss :"));
-            //     value += "\n";
-            // }
-            // else
-            // {
-            //     value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss :") + value + "\n";
-            // }
             value += "\n";
             SetProperty(ref _infoText, value);
+        }
+    }
+
+    private IEnumerable<string> _typeNames;
+    private IEnumerable<string> _methodNames;
+    
+    [ObservableProperty] private ObservableCollection<string> _typeNamesDisplay;
+    private ObservableCollection<string> _methodNamesDisplay;
+    public ObservableCollection<string> MethodNamesDisplay
+    {
+        get => _methodNamesDisplay;
+        set
+        {
+            SetProperty(ref _methodNamesDisplay, value);
+        }
+    }
+
+    private int _methodNamesDisplayIndex = 0;
+    public int MethodNamesDisplayIndex
+    {
+        get => _methodNamesDisplayIndex;
+        set
+        {
+            SetProperty(ref _methodNamesDisplayIndex, value);
+            MethodNamesDisplayIndexChanged();
+        }
+    }
+
+    private void MethodNamesDisplayIndexChanged()
+    {
+        try
+        {
+            MethodName = MethodNamesDisplay[MethodNamesDisplayIndex];
+        }
+        catch(Exception ex)
+        {
+            
         }
     }
 };

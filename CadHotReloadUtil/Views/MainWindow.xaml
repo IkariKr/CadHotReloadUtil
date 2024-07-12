@@ -2,7 +2,7 @@
     AllowsTransparency="True"
     Background="Transparent"
     FontSize="12"
-    Height="600"
+    Height="730"
     ResizeMode="NoResize"
     Width="300"
     WindowStyle="None"
@@ -33,102 +33,149 @@
         CornerRadius="6"
         Effect="{StaticResource Shadow}">
         <Border Background="White" CornerRadius="6">
+
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="30" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="30" />
+                    <RowDefinition Height="175" />
+                    <RowDefinition Height="35" />
                 </Grid.RowDefinitions>
-                <Border Background="Transparent" MouseDown="Border_MouseDown">
-                    <Grid>
-                        <TextBlock
-                            Background="Transparent"
-                            Margin="10,0,0,0"
-                            Text="AutoCad 热重载工具"
-                            VerticalAlignment="Center" />
 
-                        <Border
-                            Height="16"
-                            HorizontalAlignment="Right"
-                            Margin="0,0,10,0"
-                            MouseLeftButtonDown="Close"
-                            Width="16">
-                            <Image Source="pack://application:,,,/CadHotReloadUtil;component/Resources/Images/Close.png" />
-                        </Border>
-                    </Grid>
-                </Border>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                <StackPanel
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="0*" />
+
+                    </Grid.ColumnDefinitions>
+
+                    <Border Background="Transparent" MouseDown="Border_MouseDown">
+                        <Grid>
+                            <TextBlock
+                                Background="Transparent"
+                                Margin="10,0,0,0"
+                                Text="AutoCad 热重载工具"
+                                VerticalAlignment="Center" />
+
+                            <Border
+                                Height="16"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,10,0"
+                                MouseLeftButtonDown="Close"
+                                Width="16">
+                                <Image Source="pack://application:,,,/CadHotReloadUtil;component/Resources/Images/Close.png" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Stretch"
+                        Margin="10,0,10,0"
+                        Orientation="Vertical"
+                        VerticalAlignment="Top">
+
+                        <ComboBox
+                            ItemsSource="{Binding InstalledCadVersions}"
+                            Margin="5"
+                            SelectedIndex="{Binding SelectedAutoCadVersionIndex}" />
+
+                        <hc:SimplePanel />
+
+                        <UniformGrid Columns="2" Rows="2">
+                            <Button
+                                Command="{Binding OpenCadCommand}"
+                                Content="打开CAD"
+                                Style="{StaticResource MyButtonStyle}" />
+                            <Button
+                                Command="{Binding LinkCadCommand}"
+                                Content="连接CAD"
+                                Style="{StaticResource MyButtonStyle}" />
+                            <Button
+                                Command="{Binding CloseCadCommand}"
+                                Content="关闭CAD"
+                                Style="{StaticResource MyButtonStyle}" />
+                            <Button
+                                Command="{Binding SelectPluginPathCommand}"
+                                Content="选择插件路径"
+                                Style="{StaticResource MyButtonStyle}" />
+                        </UniformGrid>
+
+                        <TextBox
+                            Height="60"
+                            IsReadOnly="True"
+                            Margin="5"
+                            Style="{StaticResource TextBoxExtend}"
+                            Text="{Binding PluginPath}"
+                            TextWrapping="Wrap" />
+
+                        <TextBox
+                            Height="30"
+                            HorizontalContentAlignment="Left"
+                            Margin="5"
+                            Style="{StaticResource TextBoxExtend}"
+                            Text="{Binding TypeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap"
+                            VerticalContentAlignment="Center"
+                            hc:InfoElement.Placeholder="请输入类名" />
+
+                        <!--  <ListBox  -->
+                        <!--  Height="80"  -->
+                        <!--  ItemsSource="{Binding TypeNamesDisplay}"  -->
+                        <!--  Margin="5" />  -->
+
+                        <TextBox
+                            Height="30"
+                            HorizontalContentAlignment="Left"
+                            Margin="5"
+                            Style="{StaticResource TextBoxExtend}"
+                            Text="{Binding MethodName}"
+                            TextWrapping="Wrap"
+                            VerticalContentAlignment="Center"
+                            hc:InfoElement.Placeholder="请输入方法名" />
+
+                        <ListBox
+                            Height="170"
+                            ItemsSource="{Binding MethodNamesDisplay, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            Margin="5"
+                            SelectedIndex="{Binding MethodNamesDisplayIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <Button
+                            Command="{Binding ExecuteMethodCommand}"
+                            Content="ExecuteMethod"
+                            Style="{StaticResource MyButtonStyle}" />
+
+                    </StackPanel>
+
+                </Grid>
+
+                <TextBox
                     Grid.Row="1"
                     HorizontalAlignment="Stretch"
-                    Margin="10,0,10,0"
-                    Orientation="Vertical"
-                    VerticalAlignment="Top">
+                    HorizontalContentAlignment="Left"
+                    IsReadOnly="True"
+                    Margin="15,0,15,0"
+                    Text="{Binding InfoText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    TextChanged="TextBoxBase_OnTextChanged"
+                    TextWrapping="Wrap"
+                    VerticalContentAlignment="Top"
+                    VerticalScrollBarVisibility="Auto" />
 
-
-                    <ComboBox ItemsSource="{Binding InstalledCadVersions}" SelectedIndex="{Binding SelectedAutoCadVersionIndex}" />
-                    <Button
-                        Command="{Binding OpenCadCommand}"
-                        Content="打开CAD"
-                        Style="{StaticResource MyButtonStyle}" />
-                    <Button
-                        Command="{Binding CloseCadCommand}"
-                        Content="关闭CAD"
-                        Style="{StaticResource MyButtonStyle}" />
-
-                    <TextBox
-                        Height="60"
-                        Text="{Binding PluginPath}"
-                        TextWrapping="Wrap" />
-                    <Button
-                        Command="{Binding SelectPluginPathCommand}"
-                        Content="选择插件路径"
-                        Style="{StaticResource MyButtonStyle}" />
-                    <Button
-                        Command="{Binding LoadPluginCommand}"
-                        Content="载入插件"
-                        Style="{StaticResource MyButtonStyle}" />
-                    <TextBox
-                        Height="30"
-                        HorizontalContentAlignment="Left"
-                        Style="{StaticResource TextBoxExtend}"
-                        Text="{Binding TypeName}"
-                        TextWrapping="Wrap"
-                        VerticalContentAlignment="Center"
-                        hc:InfoElement.Placeholder="请输入类名" />
-                    <TextBox
-                        Height="30"
-                        HorizontalContentAlignment="Left"
-                        Style="{StaticResource TextBoxExtend}"
-                        Text="{Binding MethodName}"
-                        TextWrapping="Wrap"
-                        VerticalContentAlignment="Center"
-                        hc:InfoElement.Placeholder="请输入方法名" />
-                    <Button
-                        Command="{Binding ExecuteMethodCommand}"
-                        Content="ExecuteMethod"
-                        Style="{StaticResource MyButtonStyle}" />
-
-                    <TextBox
-                        Height="160"
-                        HorizontalContentAlignment="Left"
-                        IsReadOnly="True"
-                        Text="{Binding InfoText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        TextChanged="TextBoxBase_OnTextChanged"
-                        TextWrapping="Wrap"
-                        VerticalContentAlignment="Top"
-                        VerticalScrollBarVisibility="Auto" />
-
-                </StackPanel>
-
-                <StackPanel Grid.Row="2">
-                    <ProgressBar
-                        IsIndeterminate="True"
-                        VerticalAlignment="Bottom"
-                        Visibility="{Binding ProgressBarVisible}" />
+                <StackPanel
+                    Grid.Row="2"
+                    Margin="0,0,0,5"
+                    VerticalAlignment="Bottom">
+                    <ProgressBar IsIndeterminate="True" Visibility="{Binding ProgressBarVisible}" />
                 </StackPanel>
 
             </Grid>
+
+
+
         </Border>
     </Border>
 
