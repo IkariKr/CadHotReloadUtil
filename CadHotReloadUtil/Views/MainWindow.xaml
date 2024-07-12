@@ -1,0 +1,136 @@
+<Window
+    AllowsTransparency="True"
+    Background="Transparent"
+    FontSize="12"
+    Height="600"
+    ResizeMode="NoResize"
+    Width="300"
+    WindowStyle="None"
+    d:DataContext="{d:DesignInstance viewmodels:MainWindowViewModel}"
+    mc:Ignorable="d"
+    x:Class="CadHotReloadUtil.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:local="clr-namespace:CadHotReloadUtil.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:CadHotReloadUtil.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/CadHotReloadUtil;component/WpfResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+    </Window.Resources>
+
+    <Border
+        Background="White"
+        BorderBrush="#656867"
+        BorderThickness="1"
+        CornerRadius="6"
+        Effect="{StaticResource Shadow}">
+        <Border Background="White" CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+                <Border Background="Transparent" MouseDown="Border_MouseDown">
+                    <Grid>
+                        <TextBlock
+                            Background="Transparent"
+                            Margin="10,0,0,0"
+                            Text="AutoCad 热重载工具"
+                            VerticalAlignment="Center" />
+
+                        <Border
+                            Height="16"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,10,0"
+                            MouseLeftButtonDown="Close"
+                            Width="16">
+                            <Image Source="pack://application:,,,/CadHotReloadUtil;component/Resources/Images/Close.png" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <StackPanel
+                    Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    Margin="10,0,10,0"
+                    Orientation="Vertical"
+                    VerticalAlignment="Top">
+
+
+                    <ComboBox ItemsSource="{Binding InstalledCadVersions}" SelectedIndex="{Binding SelectedAutoCadVersionIndex}" />
+                    <Button
+                        Command="{Binding OpenCadCommand}"
+                        Content="打开CAD"
+                        Style="{StaticResource MyButtonStyle}" />
+                    <Button
+                        Command="{Binding CloseCadCommand}"
+                        Content="关闭CAD"
+                        Style="{StaticResource MyButtonStyle}" />
+
+                    <TextBox
+                        Height="60"
+                        Text="{Binding PluginPath}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        Command="{Binding SelectPluginPathCommand}"
+                        Content="选择插件路径"
+                        Style="{StaticResource MyButtonStyle}" />
+                    <Button
+                        Command="{Binding LoadPluginCommand}"
+                        Content="载入插件"
+                        Style="{StaticResource MyButtonStyle}" />
+                    <TextBox
+                        Height="30"
+                        HorizontalContentAlignment="Left"
+                        Style="{StaticResource TextBoxExtend}"
+                        Text="{Binding TypeName}"
+                        TextWrapping="Wrap"
+                        VerticalContentAlignment="Center"
+                        hc:InfoElement.Placeholder="请输入类名" />
+                    <TextBox
+                        Height="30"
+                        HorizontalContentAlignment="Left"
+                        Style="{StaticResource TextBoxExtend}"
+                        Text="{Binding MethodName}"
+                        TextWrapping="Wrap"
+                        VerticalContentAlignment="Center"
+                        hc:InfoElement.Placeholder="请输入方法名" />
+                    <Button
+                        Command="{Binding ExecuteMethodCommand}"
+                        Content="ExecuteMethod"
+                        Style="{StaticResource MyButtonStyle}" />
+
+                    <TextBox
+                        Height="160"
+                        HorizontalContentAlignment="Left"
+                        IsReadOnly="True"
+                        Text="{Binding InfoText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TextChanged="TextBoxBase_OnTextChanged"
+                        TextWrapping="Wrap"
+                        VerticalContentAlignment="Top"
+                        VerticalScrollBarVisibility="Auto" />
+
+                </StackPanel>
+
+                <StackPanel Grid.Row="2">
+                    <ProgressBar
+                        IsIndeterminate="True"
+                        VerticalAlignment="Bottom"
+                        Visibility="{Binding ProgressBarVisible}" />
+                </StackPanel>
+
+            </Grid>
+        </Border>
+    </Border>
+
+
+</Window>

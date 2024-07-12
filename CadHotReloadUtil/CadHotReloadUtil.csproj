@@ -1,0 +1,93 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net48</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <LangVersion>preview</LangVersion>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+        <PackageReference Include="HandyControl" Version="3.5.1" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Utility\IkariCommon.Utility\Ikari.AutoCAD.Utility\Ikari.AutoCAD.Utility.csproj" />
+      <ProjectReference Include="..\..\Utility\IkariCommon.Utility\Ikari.Common.Utility\Ikari.Common.Utility.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\Images\Close.png" />
+      <Resource Include="Resources\Images\Close.png" />
+      <None Remove="Resources\Images\repeat32.png" />
+      <Resource Include="Resources\Images\repeat32.png" />
+      <None Update="Resources\Interop.Common\AutoCAD 2010\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2010\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2012\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2012\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2014\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2014\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2016\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2016\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2018\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2018\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2020\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2020\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2022\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2022\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2024\Autodesk.AutoCAD.Interop.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Interop.Common\AutoCAD 2024\Autodesk.AutoCAD.Interop.Common.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Remove="Resources\Interop.Common\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Resources\Interop.Common\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Resources\Interop.Common\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Remove="Resources\Interop.Common\**" />
+    </ItemGroup>
+
+</Project>
