@@ -4,7 +4,7 @@
     FontSize="12"
     Height="730"
     ResizeMode="NoResize"
-    Width="300"
+    Width="320"
     WindowStyle="None"
     d:DataContext="{d:DesignInstance viewmodels:MainWindowViewModel}"
     mc:Ignorable="d"

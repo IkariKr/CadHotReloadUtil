@@ -11,7 +11,7 @@ using Ikari.AutoCAD.Utility;
 using Ikari.AutoCAD.Utility.CADInfo;
 using Ikari.AutoCAD.Utility.CommandHelper;
 using Ikari.AutoCAD.Utility.ComUtils;
-using Ikari.AutoCAD.Utility.Methods;
+using Ikari.AutoCAD.Utility.EnvTools;
 using Ikari.Common.Utility.AppDomainManager;
 using Ikari.Common.Utility.Extensions;
 using Ikari.Framework.Utility.FileUtility;
@@ -25,11 +25,14 @@ public partial class MainWindowViewModel : ObservableObject
     public MainWindowViewModel()
     {
         _installedCadVersions = GetInstalledCadVersion().ToObservableCollection();
+        //如果包含AutoCAD 2014 则在注册表中注册
+        EnvTools.AddConfidencePathForAutoCad2014(App.CurPath);
     }
 
-    private Assembly _assembly;
+    private Assembly? _assembly = null;
     
-    [ObservableProperty] private ObservableCollection<string> _installedCadVersions;
+    [ObservableProperty]
+    private ObservableCollection<string> _installedCadVersions;
     
     public RelayCommand CloseCommand => new RelayCommand(() =>
     {
@@ -48,7 +51,7 @@ public partial class MainWindowViewModel : ObservableObject
                 if (_adl == null)
                 {
                     var dllPath = "Resources\\Interop.Common\\" + InstalledCadVersions[_selectedAutoCadVersionIndex];
-                    _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.curPath, dllPath);
+                    _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.CurPath, dllPath);
                 }
 
                 var innerVersion = AutoCadVersion.DisplayAutoCADToInnerVersionDic[InstalledCadVersions[_selectedAutoCadVersionIndex]];
@@ -58,8 +61,8 @@ public partial class MainWindowViewModel : ObservableObject
 
                 (_adl.remoteLoader as AutoCadRemoteLoader)?.CreateAndShowCadApp(cadInstallPath,
                     AutoCadVersion.DisplayAutoCADToAutoCADDic[InstalledCadVersions[_selectedAutoCadVersionIndex]]);
-                var pluginPath = App.curPath + "\\Ikari.AutoCAD.Utility.dll";
-                (_adl.remoteLoader as AutoCadRemoteLoader)?.ExecuteNetloadMethod(pluginPath);
+                var pluginPath = App.CurPath + "\\Ikari.AutoCAD.Utility.dll";
+                (_adl.remoteLoader as AutoCadRemoteLoader)?.ExecuteNetloadCommand(pluginPath);
                 
                 InfoText += "打开成功";
             }
@@ -100,7 +103,8 @@ public partial class MainWindowViewModel : ObservableObject
             var filePaths = FileGUI.OpenFileDialog(FileGUI.FileFilter.dll);
             if (filePaths.Length == 0) return;
             PluginPath = filePaths[0];
-            _assembly = AssemblyExtension.LoadAssembly(PluginPath);
+
+            _assembly = Assembly.Load(File.ReadAllBytes(PluginPath));
         }
         catch(Exception ex)
         {
@@ -116,19 +120,13 @@ public partial class MainWindowViewModel : ObservableObject
             if (_adl == null)
             {
                 var dllPath = "Resources\\Interop.Common\\" + InstalledCadVersions[_selectedAutoCadVersionIndex];
-                _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.curPath, dllPath);
+                _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.CurPath, dllPath);
             }
-            
             var rl = _adl.remoteLoader as AutoCadRemoteLoader;
-            var (isSuccess,errMsg)  = rl.GetExistingAutoCadInstance(AutoCadVersion.DisplayAutoCADToAutoCADDic[InstalledCadVersions[_selectedAutoCadVersionIndex]]);
-            if (isSuccess)
-            {
-                InfoText += $"连接成功:{rl.cadApp.ToString()}";
-            }
-            else
-            {
-                InfoText += errMsg;
-            }
+            rl?.GetExistingAutoCadInstance(AutoCadVersion.DisplayAutoCADToAutoCADDic[InstalledCadVersions[_selectedAutoCadVersionIndex]]);
+        
+            InfoText += $"连接成功:{rl.Com.GetComObject().ToString()}";
+ 
         }
         catch (Exception ex)
         {
@@ -161,7 +159,7 @@ public partial class MainWindowViewModel : ObservableObject
             }
             
             var dllPath = "Resources/Interop.Common/" + InstalledCadVersions[_selectedAutoCadVersionIndex];
-            _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.curPath, dllPath);
+            _adl = AutoCADAppDomainExtension.CreateAndLoadInteropAppDomain(App.CurPath, dllPath);
         }
         catch
         {
@@ -203,7 +201,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     });
 
-    private string _typeName;
+    private string _typeName = string.Empty;
     public string TypeName
     {
         get => _typeName;
@@ -221,14 +219,13 @@ public partial class MainWindowViewModel : ObservableObject
             _methodNames = _assembly?.GetType(_typeName)?.GetMethods()?.Select(x => x.Name);
             MethodNamesDisplay = _methodNames?.ToObservableCollection();
         }
-        catch(Exception ex)
+        catch
         {
-            
+            // ignored
         }
-
     }
 
-    [ObservableProperty] private string _methodName;
+    [ObservableProperty] private string _methodName = string.Empty;
     
     private string _infoText = string.Empty;
     public string InfoText
@@ -240,13 +237,12 @@ public partial class MainWindowViewModel : ObservableObject
             SetProperty(ref _infoText, value);
         }
     }
-
-    private IEnumerable<string> _typeNames;
-    private IEnumerable<string> _methodNames;
+    
+    private IEnumerable<string>? _methodNames = new List<string>();
     
     [ObservableProperty] private ObservableCollection<string> _typeNamesDisplay;
-    private ObservableCollection<string> _methodNamesDisplay;
-    public ObservableCollection<string> MethodNamesDisplay
+    private ObservableCollection<string>? _methodNamesDisplay;
+    public ObservableCollection<string>? MethodNamesDisplay
     {
         get => _methodNamesDisplay;
         set

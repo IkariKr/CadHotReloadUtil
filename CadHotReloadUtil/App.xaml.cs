@@ -17,25 +17,25 @@ namespace CadHotReloadUtil;
 /// </summary>
 public partial class App : Application
 {
-    private static IServiceCollection Service;
-    public static ServiceProvider Builder;
-    public static string curPath;
+    private static IServiceCollection _service;
+    public static ServiceProvider? Builder;
+    public static string? CurPath;
     
     public App()
     {
         CheckAdministrator();
         
-        Service = new ServiceCollection();
+        _service = new ServiceCollection();
         //设置文件路径
-        curPath = Path.GetDirectoryName(GetType().Assembly.Location) + "\\";
-        AssemblyUtility.LoadDLL(curPath + "HandyControl.dll");
+        CurPath = Path.GetDirectoryName(GetType().Assembly.Location) + "\\";
+        AssemblyUtility.LoadDll(CurPath + "HandyControl.dll");
 
         //注册
-        Service.AddSingleton<MainWindow>();
-        Service.AddSingleton<MainWindowViewModel>();
+        _service.AddSingleton<MainWindow>();
+        _service.AddSingleton<MainWindowViewModel>();
         
         //构建服务
-        Builder = Service.BuildServiceProvider();
+        Builder = _service.BuildServiceProvider();
         
         Builder.GetService<MainWindow>()?.Show();
     }
@@ -43,16 +43,13 @@ public partial class App : Application
     private void CheckAdministrator()
     {
         var (isAdmin, message) = BaseUtilityExtension.CheckAdministrator();
-        if (!isAdmin)
-        {
-            MessageBox.Show("请以管理员权限重新运行本程序。");
-            Current.Shutdown();
-            return;
-        }
+        if (isAdmin) return;
+        MessageBox.Show("请以管理员权限重新运行本程序。");
+        Current.Shutdown();
     }
     
     
-    override sealed protected void OnStartup(StartupEventArgs e)
+    protected sealed override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
     }

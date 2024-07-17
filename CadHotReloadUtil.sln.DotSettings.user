@@ -1,2 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelop_005CCshape_005CUtility_005CIkariCommon_002EUtility_005CIkariCommon_002EUtility_002Esln/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelop_005CCshape_005CUtility_005CIkariCommon_002EUtility_005CIkariCommon_002EUtility_002Esln/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="H:\OneDrive\Develop\Cshape\Utility\IkariCommon.Utility\Ikari.AutoCAD.Utility\Resources\Interop.Common\AutoCAD 2014\Autodesk.AutoCAD.Interop.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>
